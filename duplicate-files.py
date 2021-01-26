@@ -35,7 +35,10 @@ class FileDeduplicator:
 
         for rootDir1, _, files in os.walk(rootDir):
             pathedFiles = [rootDir1 + os.sep + file for file in files]
-            [sizedFilesDict[os.path.getsize(file)].add(file) for file in pathedFiles]
+
+            # TODO: add try-catch for FileNotFoundError
+            # Ignore symlinks
+            [sizedFilesDict[os.path.getsize(file)].add(file) for file in pathedFiles if not os.path.islink(file)]
 
         return sizedFilesDict
 
@@ -50,11 +53,17 @@ class FileDeduplicator:
         return {size: files for (size, files) in sizeBasedFiles.items() if len(files) > 1}
 
 
+    def getDuplicateFiles(self, sameSizedFiles):
+        print(self.name + "Getting possible duplicate files from " + str(len(sameSizedFiles)) + " file sizes")
+
+        return {}
+
+
     def writeOutputFile(self, sameSizedFiles, outputFile):
         print(self.name + "Writing " + str(len(sameSizedFiles)) + " possible duplicate file clusters to output file: " + outputFile)
 
         with open(outputFile, "w") as out:
-            {self._printSize(out, size, paths) for (size, paths) in sorted(sameSizedFiles.items())}
+            {self._printSize(out, size, paths) for (size, paths) in sorted(sameSizedFiles.items(), reverse=True)}
 
 
 
@@ -77,8 +86,6 @@ class FileDeduplicator:
 
 
     def _getFileHash(self, filePath):
-        # print(self.name + "Getting hash of file: " + filePath)
-
         sha256 = hashlib.sha256()
 
         # From: https://stackoverflow.com/a/22058673
@@ -97,12 +104,15 @@ class FileDeduplicator:
 
 if '__main__' == __name__:
     # rootDir = "/home/builder/Documents"
-    rootDir = "/media/builder/My Passport/device-dumps/002-10nov18-laptop-yoga/"
+    # rootDir = "/media/builder/My Passport/device-dumps/002-10nov18-laptop-yoga/"
+    # rootDir = "/media/builder/STORAGE/SAVE_20141121/Eros/"
+    # rootDir = "/media/builder/My Passport/device-dumps/1/scsjjss/"
+    rootDir = "/media/builder/STORAGE/SAVE_20141121/Music/"
 
     dedup = FileDeduplicator()
 
     sameSizedFiles = dedup.getSameSizedFiles(rootDir)
     
-    {print(size, paths) for (size, paths) in sorted(sameSizedFiles.items())}
-
     dedup.writeOutputFile(sameSizedFiles, "/home/builder/RAM/dedup-" + os.path.basename(os.path.dirname(rootDir)) + ".txt")
+
+    # print(dedup.getDuplicateFiles(sameSizedFiles))
