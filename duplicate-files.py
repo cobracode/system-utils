@@ -103,11 +103,7 @@ class FileDeduplicator:
 # --------- Main --------------------
 
 if '__main__' == __name__:
-    # rootDir = "/home/builder/Documents"
-    # rootDir = "/media/builder/My Passport/device-dumps/002-10nov18-laptop-yoga/"
-    # rootDir = "/media/builder/STORAGE/SAVE_20141121/Eros/"
-    # rootDir = "/media/builder/My Passport/device-dumps/1/scsjjss/"
-    rootDir = "/media/builder/STORAGE/SAVE_20141121/Music/"
+    rootDir = ""
 
     dedup = FileDeduplicator()
 
